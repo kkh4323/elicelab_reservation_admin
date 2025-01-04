@@ -53,10 +53,10 @@ const UserList = props => {
     try {
       const config = {
         headers: {
-          Authorization: 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmNzUzNjlmZS05MTU5LTQ1OTctYTFlNi0xMWEyOTYyOTE1YWYiLCJpYXQiOjE3MzQ4NDA0MTAsImV4cCI6MTczNDg0NjQxMH0.5qhixXm_vuap5DP338GYuPaWXtfIMrRTxCDqcC8ERYc'
+          Authorization: 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxYmViYzUxYS04NTY0LTRhYTgtYjVjZS03OWJkMjE2MzMzNDIiLCJpYXQiOjE3MzQ4NDk2OTksImV4cCI6MTczNDg1NTY5OX0.YsyWtKUGeP9R6p4UjCDCkI2RsBQ2hZk0_eVFnHHOZOo'
         }
       }
-      const {data, stauts} = await axios.get('https://localhost/api/user', config)
+      const {data, status} = await axios.get('https://localhost/api/user', config)
       setCustomers(data.body.data)
       console.log(data.body.data)
     } catch (err) {

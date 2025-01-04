@@ -17,11 +17,12 @@ import { Link, useNavigate } from "react-router-dom";
 // import images
 import profileImg from "../../assets/images/profile-img.png";
 import logoImg from "../../assets/images/logo.svg";
+import axios from "axios"
 
 const Register = props => {
 
   //meta title
-  document.title = "Register | Skote - React Admin & Dashboard Template";
+  document.title = "회원가입 | 엘리스랩";
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,18 +34,37 @@ const Register = props => {
     initialValues: {
       email: '',
       username: '',
+      phone: '',
       password: '',
+      confirmPassword: '',
     },
     validationSchema: Yup.object({
       email: Yup.string().required("Please Enter Your Email"),
       username: Yup.string().required("Please Enter Your Username"),
+      phone: Yup.string().required("Please Enter Your Phone"),
       password: Yup.string().required("Please Enter Your Password"),
+      confirmPassword: Yup.string().required("Please Enter Your Confirm Password")
     }),
     onSubmit: (values) => {
-      dispatch(registerUser(values));
+      // dispatch(registerUser(values));
+      if (values.password !== values.confirmPassword) {
+        return alert("패스워드가 일치하지 않습니다.")
+      }
+      const {email, username, phone, password} = values
+      registerUser({email, username, phone, password})
     }
   });
 
+  const registerUser = async (values) => {
+    try {
+      const {data, status} = await axios.post('https://localhost/api/auth/signup', values)
+      if (status === 201) {
+        navigate('/login')
+      }
+    } catch (err) {
+      console.log(err.message)
+    }
+  }
 
   const AccountProperties = createSelector(
     (state) => state.Account,
@@ -130,6 +150,24 @@ const Register = props => {
                       ) : null}
 
                       <div className="mb-3">
+                        <Label className="form-label">Username</Label>
+                        <Input
+                          name="username"
+                          type="text"
+                          placeholder="Enter username"
+                          onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
+                          value={validation.values.username || ""}
+                          invalid={
+                            validation.touched.username && validation.errors.username ? true : false
+                          }
+                        />
+                        {validation.touched.username && validation.errors.username ? (
+                          <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>
+                        ) : null}
+                      </div>
+
+                      <div className="mb-3">
                         <Label className="form-label">Email</Label>
                         <Input
                           id="email"
@@ -150,22 +188,23 @@ const Register = props => {
                       </div>
 
                       <div className="mb-3">
-                        <Label className="form-label">Username</Label>
+                        <Label className="form-label">Phone</Label>
                         <Input
-                          name="username"
-                          type="text"
-                          placeholder="Enter username"
+                          name="phone"
+                          type="phone"
+                          placeholder="Enter phone"
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
-                          value={validation.values.username || ""}
+                          value={validation.values.phone || ""}
                           invalid={
-                            validation.touched.username && validation.errors.username ? true : false
+                            validation.touched.phone && validation.errors.phone ? true : false
                           }
                         />
-                        {validation.touched.username && validation.errors.username ? (
-                          <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>
+                        {validation.touched.phone && validation.errors.phone ? (
+                          <FormFeedback type="invalid">{validation.errors.phone}</FormFeedback>
                         ) : null}
                       </div>
+
                       <div className="mb-3">
                         <Label className="form-label">Password</Label>
                         <Input
@@ -181,6 +220,24 @@ const Register = props => {
                         />
                         {validation.touched.password && validation.errors.password ? (
                           <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
+                        ) : null}
+                      </div>
+
+                      <div className="mb-3">
+                        <Label className="form-label">Confirm Password</Label>
+                        <Input
+                          name="confirmPassword"
+                          type="password"
+                          placeholder="비밀번호를 한 번 더 입력해주세요"
+                          onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
+                          value={validation.values.confirmPassword || ""}
+                          invalid={
+                            validation.touched.confirmPassword && validation.errors.confirmPassword ? true : false
+                          }
+                        />
+                        {validation.touched.confirmPassword && validation.errors.confirmPassword ? (
+                          <FormFeedback type="invalid">{validation.errors.confirmPassword}</FormFeedback>
                         ) : null}
                       </div>
 
@@ -208,9 +265,9 @@ const Register = props => {
               <div className="mt-5 text-center">
                 <p>
                   Already have an account ?{" "} <Link to="/login" className="font-weight-medium text-primary">
-                    {" "}
-                    Login
-                  </Link>{" "}
+                  {" "}
+                  Login
+                </Link>{" "}
                 </p>
                 <p>
                   © {new Date().getFullYear()} Skote. Crafted with{" "}

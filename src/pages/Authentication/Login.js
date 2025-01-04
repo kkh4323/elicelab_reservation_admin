@@ -6,7 +6,7 @@ import { Row, Col, CardBody, Card, Alert, Container, Form, Input, FormFeedback, 
 //redux
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"
 import withRouter from "components/Common/withRouter";
 
 // Formik validation
@@ -19,13 +19,15 @@ import { loginUser, socialLogin } from "../../store/actions";
 // import images
 import profile from "assets/images/profile-img.png";
 import logo from "assets/images/logo.svg";
+import axios from "axios"
 
 const Login = props => {
 
   //meta title
-  document.title = "Login | Skote - React Admin & Dashboard Template";
+  document.title = "로그인 | 엘리스랩";
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const validation = useFormik({
     // enableReinitialize : use this  flag when initial values needs to be changed
@@ -34,6 +36,8 @@ const Login = props => {
     initialValues: {
       email: "admin@themesbrand.com" || '',
       password: "123456" || '',
+      // email: '',
+      // password: '',
     },
     validationSchema: Yup.object({
       email: Yup.string().required("Please Enter Your Email"),
@@ -41,9 +45,23 @@ const Login = props => {
     }),
     onSubmit: (values) => {
       dispatch(loginUser(values, props.router.navigate));
+      // const { email, password } = values
+      // loginUser({email, password})
     }
   });
 
+  // const loginUser = async (values) => {
+  //   try {
+  //     const {data, status} = await axios.post('https://localhost/api/auth/login', values)
+  //     if (status === 200) {
+  //       console.log(data.accessToken)
+  //       localStorage.setItem('accessToken', data.accessToken)
+  //       navigate('/')
+  //     }
+  //   } catch (err) {
+  //     console.log(err.message)
+  //   }
+  // }
 
   const LoginProperties = createSelector(
     (state) => state.Login,
