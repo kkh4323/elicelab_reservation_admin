@@ -53,7 +53,7 @@ const UserList = props => {
     try {
       const config = {
         headers: {
-          Authorization: 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxYmViYzUxYS04NTY0LTRhYTgtYjVjZS03OWJkMjE2MzMzNDIiLCJpYXQiOjE3MzQ4NDk2OTksImV4cCI6MTczNDg1NTY5OX0.YsyWtKUGeP9R6p4UjCDCkI2RsBQ2hZk0_eVFnHHOZOo'
+          Authorization: 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjNzc5MmM0OS04OWFkLTRjZWYtYWZiZi1jZWE2OWMwMjBmYWEiLCJpYXQiOjE3MzU5NjgwMTUsImV4cCI6MTczNTk3NDAxNX0.25c1ql2dW7R5IVscqsRWo_H4pQmNJuq7nHfq0o5bkTc'
         }
       }
       const {data, status} = await axios.get('https://localhost/api/user', config)

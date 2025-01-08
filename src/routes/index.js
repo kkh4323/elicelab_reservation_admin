@@ -1,18 +1,20 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React from "react"
+import { Navigate } from "react-router-dom"
 
 // Authentication related pages
-import Login from "../pages/Authentication/Login";
-import Logout from "../pages/Authentication/Logout";
-import Register from "../pages/Authentication/Register";
-import ForgetPwd from "../pages/Authentication/ForgetPassword";
+import Login from "../pages/Authentication/Login"
+import Logout from "../pages/Authentication/Logout"
+import Register from "../pages/Authentication/Register"
+import ForgetPwd from "../pages/Authentication/ForgetPassword"
 
 // Dashboard
-import Dashboard from "../pages/Dashboard/index";
+import Dashboard from "../pages/Dashboard/index"
 import { AdminList, UserList } from "../pages/User"
 import { AddSpace, SpaceList } from "../pages/Space"
 import { ReservationList } from "../pages/Reservation"
 import { BlogGrid, BlogList } from "../pages/Blog"
+import ChangePassword from "../pages/Authentication/ChangePassword"
+import FindEmail from "../pages/Authentication/FindEmail"
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
@@ -60,13 +62,15 @@ const authProtectedRoutes = [
     exact: true,
     component: <BlogGrid />,
   },
-];
+]
 
 const publicRoutes = [
   { path: "/login", component: <Login /> },
   { path: "/logout", component: <Logout /> },
   { path: "/forgot-password", component: <ForgetPwd /> },
+  { path: "/find-email", component: <FindEmail /> },
   { path: "/register", component: <Register /> },
-];
+  { path: "/change/password", component: <ChangePassword /> },
+]
 
-export { authProtectedRoutes, publicRoutes };
+export { authProtectedRoutes, publicRoutes }

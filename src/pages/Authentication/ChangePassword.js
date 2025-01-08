@@ -16,7 +16,12 @@ import {
 //redux
 import { useSelector, useDispatch } from "react-redux"
 import { createSelector } from "reselect"
-import { Link, useNavigate } from "react-router-dom"
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom"
 import withRouter from "components/Common/withRouter"
 
 // Formik Validation
@@ -24,40 +29,52 @@ import * as Yup from "yup"
 import { useFormik } from "formik"
 
 // action
-import { userForgetPassword } from "../../store/actions"
+// import { userForgetPassword } from "../../store/actions";
 
 // import images
 import profile from "../../assets/images/profile-img.png"
 import logo from "../../assets/images/logo.svg"
 import axios from "axios"
 
-const ForgetPasswordPage = props => {
+const ChangePassword = props => {
   //meta title
-  document.title = "Forget Password | Skote - React Admin & Dashboard Template"
+  document.title = "비밀번호 재설정 | 엘리스랩"
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const token = searchParams.get("token")
 
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
 
     initialValues: {
-      email: "",
+      newPassword: "",
+      confirmPassword: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string().required("Please Enter Your Email"),
+      newPassword: Yup.string().required("새 비밀번호를 입력해주세요"),
+      confirmPassword: Yup.string().required(
+        "새 비밀번호를 한 번 더 입력해주세요"
+      ),
     }),
     onSubmit: async values => {
-      dispatch(userForgetPassword(values, props.history))
+      // dispatch(userForgetPassword(values, props.history));
       console.log(values)
+      const { newPassword, confirmPassword } = values
+      if (newPassword !== confirmPassword) {
+        alert("비밀번호가 일치하지 않습니다.")
+        window.location.reload()
+      }
+      const userInput = { newPassword, token }
       try {
         const { data, status } = await axios.post(
-          "http://localhost/api/auth/forgot/password",
-          values
+          "http://localhost/api/auth/change/password/before",
+          userInput
         )
         if (status === 200) {
-          alert("please email check")
+          alert("비밀번호가 변경되었습니다.")
           navigate("/login")
         }
       } catch (err) {
@@ -66,17 +83,18 @@ const ForgetPasswordPage = props => {
     },
   })
 
-  const ForgotPasswordProperties = createSelector(
-    state => state.ForgetPassword,
-    forgetPassword => ({
-      forgetError: forgetPassword.forgetError,
-      forgetSuccessMsg: forgetPassword.forgetSuccessMsg,
-    })
-  )
+  // const ForgotPasswordProperties = createSelector(
+  //   (state) => state.ForgetPassword,
+  //   (forgetPassword) => ({
+  //     forgetError: forgetPassword.forgetError,
+  //     forgetSuccessMsg: forgetPassword.forgetSuccessMsg,
+  //   })
+  // );
 
-  const { forgetError, forgetSuccessMsg } = useSelector(
-    ForgotPasswordProperties
-  )
+  // const {
+  //   forgetError,
+  //   forgetSuccessMsg
+  // } = useSelector(ForgotPasswordProperties);
 
   return (
     <React.Fragment>
@@ -94,8 +112,8 @@ const ForgetPasswordPage = props => {
                   <Row>
                     <Col xs={7}>
                       <div className="text-primary p-4">
-                        <h5 className="text-primary">Welcome Back !</h5>
-                        <p>Sign in to continue to Skote.</p>
+                        <h5 className="text-primary">비밀번호 재설정</h5>
+                        <p>새 비밀번호를 입력해주세요.</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -119,16 +137,16 @@ const ForgetPasswordPage = props => {
                     </Link>
                   </div>
                   <div className="p-2">
-                    {forgetError && forgetError ? (
-                      <Alert color="danger" style={{ marginTop: "13px" }}>
-                        {forgetError}
-                      </Alert>
-                    ) : null}
-                    {forgetSuccessMsg ? (
-                      <Alert color="success" style={{ marginTop: "13px" }}>
-                        {forgetSuccessMsg}
-                      </Alert>
-                    ) : null}
+                    {/*{forgetError && forgetError ? (*/}
+                    {/*  <Alert color="danger" style={{ marginTop: "13px" }}>*/}
+                    {/*    {forgetError}*/}
+                    {/*  </Alert>*/}
+                    {/*) : null}*/}
+                    {/*{forgetSuccessMsg ? (*/}
+                    {/*  <Alert color="success" style={{ marginTop: "13px" }}>*/}
+                    {/*    {forgetSuccessMsg}*/}
+                    {/*  </Alert>*/}
+                    {/*) : null}*/}
 
                     <Form
                       className="form-horizontal"
@@ -139,24 +157,50 @@ const ForgetPasswordPage = props => {
                       }}
                     >
                       <div className="mb-3">
-                        <Label className="form-label">Email</Label>
+                        <Label className="form-label">새 비밀번호</Label>
                         <Input
-                          name="email"
+                          name="newPassword"
                           className="form-control"
-                          placeholder="Enter email"
-                          type="email"
+                          placeholder="비밀번호를 입력해주세요"
+                          type="password"
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
+                          value={validation.values.newPassword || ""}
                           invalid={
-                            validation.touched.email && validation.errors.email
+                            validation.touched.newPassword &&
+                            validation.errors.newPassword
                               ? true
                               : false
                           }
                         />
-                        {validation.touched.email && validation.errors.email ? (
+                        {validation.touched.newPassword &&
+                        validation.errors.newPassword ? (
                           <FormFeedback type="invalid">
-                            {validation.errors.email}
+                            {validation.errors.newPassword}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+                      <div className="mb-3">
+                        <Label className="form-label">새 비밀번호 확인</Label>
+                        <Input
+                          name="confirmPassword"
+                          className="form-control"
+                          placeholder="비밀번호를 한 번 더 입력해주세요"
+                          type="password"
+                          onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
+                          value={validation.values.confirmPassword || ""}
+                          invalid={
+                            validation.touched.confirmPassword &&
+                            validation.errors.confirmPassword
+                              ? true
+                              : false
+                          }
+                        />
+                        {validation.touched.confirmPassword &&
+                        validation.errors.confirmPassword ? (
+                          <FormFeedback type="invalid">
+                            {validation.errors.confirmPassword}
                           </FormFeedback>
                         ) : null}
                       </div>
@@ -166,7 +210,7 @@ const ForgetPasswordPage = props => {
                             className="btn btn-primary w-md "
                             type="submit"
                           >
-                            Reset
+                            확인
                           </button>
                         </Col>
                       </Row>
@@ -177,13 +221,13 @@ const ForgetPasswordPage = props => {
               <div className="mt-5 text-center">
                 <p>
                   Go back to{" "}
-                  <Link to="/login" className="font-weight-medium text-primary">
+                  <Link to="login" className="font-weight-medium text-primary">
                     Login
                   </Link>{" "}
                 </p>
                 <p>
-                  © {new Date().getFullYear()} Elice. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Kangho Kim
+                  © {new Date().getFullYear()} Skote. Crafted with{" "}
+                  <i className="mdi mdi-heart text-danger" /> by Themesbrand
                 </p>
               </div>
             </Col>
@@ -194,8 +238,8 @@ const ForgetPasswordPage = props => {
   )
 }
 
-ForgetPasswordPage.propTypes = {
+ChangePassword.propTypes = {
   history: PropTypes.object,
 }
 
-export default withRouter(ForgetPasswordPage)
+export default withRouter(ChangePassword)
