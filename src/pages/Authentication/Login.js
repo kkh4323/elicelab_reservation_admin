@@ -85,8 +85,29 @@ const Login = props => {
       email: Yup.string().required("Please Enter Your Email"),
       password: Yup.string().required("Please Enter Your Password"),
     }),
-    onSubmit: values => {
-      dispatch(loginUser(values, props.router.navigate))
+    onSubmit: async values => {
+      // dispatch(loginUser(values, props.router.navigate))
+      try {
+        const { data, status } = await axios.post(
+          "https://localhost/api/auth/login",
+          values
+        )
+        if (status === 200) {
+          console.log(data.accessToken, data.refreshToken)
+          localStorage.setItem("accessToken", data.accessToken)
+          localStorage.setItem("refreshToken", data.refreshToken)
+
+          // dispatch(loginUser(values, props.router.navigate))
+
+          // props.router.navigate("/")
+          navigate("/")
+        }
+      } catch (err) {
+        console.log(err.message)
+        if (err.response?.status === 400) {
+          setErrAlert(true)
+        }
+      }
     },
   })
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import {
   Row,
   Col,
@@ -36,9 +36,12 @@ const Register = props => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const emailRef = useRef()
 
   const [submitBtnDisable, setSubmitBtnDisable] = useState(true)
   const [verifyCodeShow, setVerifyCodeShow] = useState(false)
+  const [verifyCode, setVerifyCode] = useState("")
+  const [verifyCodeCheck, setVerifyCodeCheck] = useState(false)
 
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
@@ -108,12 +111,14 @@ const Register = props => {
           etc,
         },
       }
+      const emailInput = { email }
       console.log(userInput)
       registerUser(userInput)
     },
   })
 
   const registerUser = async values => {
+    console.log("values: ", values)
     try {
       const { data, status } = await axios.post(
         "https://localhost/api/auth/signup",
@@ -129,13 +134,12 @@ const Register = props => {
 
   const sendEmail = async e => {
     e.preventDefault()
-
-    const userInput = { email }
+    const userInput = { email: validation.values.email }
     try {
       const url = "http://localhost/api/auth/email/send"
       const result = await axios.post(url, userInput)
       console.log("+++++++++++++++++", result)
-      if (result.status === 201) {
+      if (result.status === 200) {
         setVerifyCodeShow(true)
       }
     } catch (err) {
@@ -143,19 +147,20 @@ const Register = props => {
     }
   }
 
-  const checkVerifyingCode = async e => {
+  const checkVerifyCode = async e => {
     e.preventDefault()
 
     const userInput = {
-      email,
-      code: verifyingCode,
+      email: validation.values.email,
+      code: verifyCode,
     }
     try {
       const url = "http://localhost/api/auth/email/verify"
       const result = await axios.post(url, userInput)
       console.log(result)
-      if (result.status === 201) {
+      if (result.status === 200) {
         setVerifyCodeShow(false)
+        setVerifyCodeCheck(true)
         setSubmitBtnDisable(false)
       }
     } catch (err) {
@@ -273,50 +278,100 @@ const Register = props => {
 
                       <div className="mb-3">
                         <Label className="form-label">이메일 주소</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          className="form-control"
-                          placeholder="이메일 주소를 입력해주세요"
-                          type="email"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
-                          invalid={
-                            validation.touched.email && validation.errors.email
-                              ? true
-                              : false
-                          }
-                        />
-                        {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.email}
-                          </FormFeedback>
-                        ) : null}
-                        <button
-                          className="btn btn-secondary mt-2"
-                          onClick={sendEmail}
-                          disabled={!validation.values.email}
-                        >
-                          가입 인증 메일 전송
-                        </button>
+                        {/*<div>*/}
+                        {/*  <div>*/}
+                        {/*    <Input*/}
+                        {/*      id="email"*/}
+                        {/*      name="email"*/}
+                        {/*      className="form-control"*/}
+                        {/*      placeholder="이메일 주소를 입력해주세요"*/}
+                        {/*      type="email"*/}
+                        {/*      onChange={validation.handleChange}*/}
+                        {/*      onBlur={validation.handleBlur}*/}
+                        {/*      value={validation.values.email || ""}*/}
+                        {/*      invalid={*/}
+                        {/*        validation.touched.email &&*/}
+                        {/*        validation.errors.email*/}
+                        {/*          ? true*/}
+                        {/*          : false*/}
+                        {/*      }*/}
+                        {/*      ref={emailRef}*/}
+                        {/*    />*/}
+                        {/*    {validation.touched.email &&*/}
+                        {/*    validation.errors.email ? (*/}
+                        {/*      <FormFeedback type="invalid">*/}
+                        {/*        {validation.errors.email}*/}
+                        {/*      </FormFeedback>*/}
+                        {/*    ) : null}*/}
+                        {/*  </div>*/}
+                        {/*  <div>*/}
+                        {/*    <button*/}
+                        {/*      className="btn btn-secondary mt-2"*/}
+                        {/*      onClick={sendEmail}*/}
+                        {/*      disabled={!validation.values.email}*/}
+                        {/*    >*/}
+                        {/*      {!verifyCodeShow && verifyCodeCheck*/}
+                        {/*        ? "이메일 인증 완료!"*/}
+                        {/*        : "가입 인증 메일 전송"}*/}
+                        {/*    </button>*/}
+                        {/*  </div>*/}
+                        {/*</div>*/}
+                        <Row>
+                          <Col xs={9}>
+                            <Input
+                              id="email"
+                              name="email"
+                              className="form-control"
+                              placeholder="이메일 주소를 입력해주세요"
+                              type="email"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.email || ""}
+                              invalid={
+                                validation.touched.email &&
+                                validation.errors.email
+                                  ? true
+                                  : false
+                              }
+                              ref={emailRef}
+                            />
+                            {validation.touched.email &&
+                            validation.errors.email ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.email}
+                              </FormFeedback>
+                            ) : null}
+                          </Col>
+                          <Col xs={3}>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={sendEmail} // sendEmail 함수 연결
+                              disabled={!validation.values.email} // 이메일이 없으면 버튼 비활성화
+                            >
+                              {verifyCodeCheck
+                                ? "이메일 인증 완료!"
+                                : "메일 전송"}
+                            </button>
+                          </Col>
+                        </Row>
                       </div>
 
                       {verifyCodeShow && (
                         <div className="mb-3">
                           <Label className="form-label">인증 코드</Label>
                           <Input
-                            id="verifyingCode"
-                            name="verifyingCode"
+                            id="verifyCode"
+                            name="verifyCode"
                             type="text"
                             placeholder="인증 코드를 입력해주세요"
-                            value={verifyingCode || ""}
-                            onChange={e => setVerifyingCode(e.target.value)}
+                            value={verifyCode || ""}
+                            onChange={e => setVerifyCode(e.target.value)}
                           />
                           <button
                             className="btn btn-secondary mt-2"
-                            onClick={checkVerifyingCode}
-                            disabled={!verifyingCode}
+                            onClick={checkVerifyCode}
+                            disabled={!verifyCode}
                           >
                             인증하기
                           </button>

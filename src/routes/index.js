@@ -15,6 +15,7 @@ import { ReservationList } from "../pages/Reservation"
 import { BlogGrid, BlogList } from "../pages/Blog"
 import ChangePassword from "../pages/Authentication/ChangePassword"
 import FindEmail from "../pages/Authentication/FindEmail"
+import SpaceDetail from "../pages/Space/SpaceDetail"
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
@@ -42,6 +43,12 @@ const authProtectedRoutes = [
     exact: true,
     component: <SpaceList />,
   },
+  {
+    path: "/spaces/:spaceId",
+    exact: true,
+    component: <SpaceDetail />,
+  },
+
   {
     path: "/add/space",
     exact: true,
