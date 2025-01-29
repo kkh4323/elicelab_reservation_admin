@@ -67,7 +67,7 @@ const UserList = props => {
   const [customers, setCustomers] = useState([])
 
   const accessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3Mzc1NDM5MzYsImV4cCI6MTczNzU0OTkzNn0.QHLm9smrLhHDJg8eZd6z_A7ZLSGf7dQbkFW9Bs51j68"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3MzgxOTM5MjMsImV4cCI6MTczODE5OTkyM30.MAqjhLmtlktqa-FGSBajVWJBzEoFM04CeAbztKgaqJ8"
 
   const getUserList = async () => {
     try {
@@ -282,6 +282,26 @@ const UserList = props => {
         accessorKey: "username",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: cell => {
+          const { profileImg, username } = cell.row.original
+          const defaultImg = "https://via.placeholder.com/40" // 기본 이미지 설정
+
+          return (
+            <div className="d-flex align-items-center">
+              <img
+                src={profileImg || defaultImg}
+                alt="프로필 이미지"
+                className="rounded-circle me-2"
+                style={{ width: "40px", height: "40px", objectFit: "cover" }}
+                onError={e => {
+                  e.target.onerror = null
+                  e.target.src = defaultImg
+                }}
+              />
+              <span>{username}</span>
+            </div>
+          )
+        },
       },
       {
         header: "이메일",
@@ -379,13 +399,6 @@ const UserList = props => {
   )
   return (
     <React.Fragment>
-      {/*<div className="page-content">*/}
-      {/*  <Container fluid>*/}
-      {/*    /!* Render Breadcrumb *!/*/}
-      {/*    <Breadcrumbs title='사용자 목록' breadcrumbItem='사용자 관리' />*/}
-
-      {/*  </Container>*/}
-      {/*</div>*/}
       <DeleteModal
         show={deleteModal}
         onDeleteClick={handleDeleteCustomer}
@@ -568,162 +581,6 @@ const UserList = props => {
               </ModalBody>
             </Modal>
           </Row>
-          {/*<Modal isOpen={modal} toggle={toggle}>*/}
-          {/*  <ModalHeader toggle={toggle} tag="h4">*/}
-          {/*    {!!isEdit*/}
-          {/*      ? "Edit Customer"*/}
-          {/*      : "Add Customer"}*/}
-          {/*  </ModalHeader>*/}
-          {/*  <ModalBody>*/}
-          {/*    <Form*/}
-          {/*      onSubmit={(e) => {*/}
-          {/*        e.preventDefault();*/}
-          {/*        validation.handleSubmit();*/}
-          {/*        return false;*/}
-          {/*      }}*/}
-          {/*    >*/}
-          {/*      <Row>*/}
-          {/*        <Col className="col-12">*/}
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>UserName</Label>*/}
-          {/*            <Input*/}
-          {/*              name="username"*/}
-          {/*              type="text"*/}
-          {/*              placeholder="Insert User Name"*/}
-          {/*              onChange={validation.handleChange}*/}
-          {/*              onBlur={validation.handleBlur}*/}
-          {/*              value={validation.values.username || ""}*/}
-          {/*              invalid={*/}
-          {/*                validation.touched.username && validation.errors.username ? true : false*/}
-          {/*              }*/}
-          {/*            />*/}
-          {/*            {validation.touched.username && validation.errors.username ? (*/}
-          {/*              <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>Phone No</Label>*/}
-          {/*            <PatternFormat*/}
-          {/*              className="form-control"*/}
-          {/*              name="phone"*/}
-          {/*              placeholder="Insert Phone No"*/}
-          {/*              value={validation.values.phone || ""}*/}
-          {/*              onChange={validation.handleChange}*/}
-          {/*              format="###-###-####"*/}
-          {/*            />*/}
-
-          {/*            {validation.touched.phone && validation.errors.phone ? (*/}
-          {/*              <FormFeedback type="invalid" className="d-block">{validation.errors.phone}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>Email Id</Label>*/}
-          {/*            <Input*/}
-          {/*              name="email"*/}
-          {/*              type="email"*/}
-          {/*              placeholder="Insert Email Id"*/}
-          {/*              onChange={validation.handleChange}*/}
-          {/*              onBlur={validation.handleBlur}*/}
-          {/*              value={validation.values.email || ""}*/}
-          {/*              invalid={*/}
-          {/*                validation.touched.email && validation.errors.email ? true : false*/}
-          {/*              }*/}
-          {/*            />*/}
-          {/*            {validation.touched.email && validation.errors.email ? (*/}
-          {/*              <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>Address</Label>*/}
-          {/*            <Input*/}
-          {/*              name="address"*/}
-          {/*              type="textarea"*/}
-          {/*              placeholder="Insert Address"*/}
-          {/*              rows="3"*/}
-          {/*              onChange={validation.handleChange}*/}
-          {/*              onBlur={validation.handleBlur}*/}
-          {/*              value={validation.values.address || ""}*/}
-          {/*              invalid={*/}
-          {/*                validation.touched.address && validation.errors.address ? true : false*/}
-          {/*              }*/}
-          {/*            />*/}
-          {/*            {validation.touched.address && validation.errors.address ? (*/}
-          {/*              <FormFeedback type="invalid">{validation.errors.address}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>Rating</Label>*/}
-          {/*            <Input*/}
-          {/*              name="rating"*/}
-          {/*              type="text"*/}
-          {/*              placeholder="Insert Rating"*/}
-          {/*              onChange={validation.handleChange}*/}
-          {/*              onBlur={validation.handleBlur}*/}
-          {/*              value={validation.values.rating || ""}*/}
-          {/*              invalid={*/}
-          {/*                validation.touched.rating && validation.errors.rating ? true : false*/}
-          {/*              }*/}
-          {/*            />*/}
-          {/*            {validation.touched.rating && validation.errors.rating ? (*/}
-          {/*              <FormFeedback type="invalid">{validation.errors.rating}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>Wallet Balance</Label>*/}
-          {/*            <Input*/}
-          {/*              name="walletBalance"*/}
-          {/*              type="text"*/}
-          {/*              placeholder="Insert Wallet Balance"*/}
-          {/*              onChange={validation.handleChange}*/}
-          {/*              onBlur={validation.handleBlur}*/}
-          {/*              value={validation.values.walletBalance || ""}*/}
-          {/*              invalid={*/}
-          {/*                validation.touched.walletBalance && validation.errors.walletBalance ? true : false*/}
-          {/*              }*/}
-          {/*            />*/}
-          {/*            {validation.touched.walletBalance && validation.errors.walletBalance ? (*/}
-          {/*              <FormFeedback type="invalid">{validation.errors.walletBalance}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-
-          {/*          <div className="mb-3">*/}
-          {/*            <Label>Joining Date</Label>*/}
-          {/*            <FlatPickr*/}
-          {/*              className="form-control"*/}
-          {/*              name="joiningDate"*/}
-          {/*              placeholder="Select time"*/}
-          {/*              value={validation.values.joiningDate || ""}*/}
-          {/*              options={{*/}
-          {/*                dateFormat: "d M, Y"*/}
-          {/*              }}*/}
-          {/*              onChange={(date) => validation.setFieldValue("joiningDate", moment(date[0]).format("DD MMM ,YYYY"))}*/}
-          {/*            />*/}
-          {/*            {validation.touched.joiningDate && validation.errors.joiningDate ? (*/}
-          {/*              <FormFeedback type="invalid" className="d-block">{validation.errors.joiningDate}</FormFeedback>*/}
-          {/*            ) : null}*/}
-          {/*          </div>*/}
-          {/*        </Col>*/}
-          {/*      </Row>*/}
-          {/*      <Row>*/}
-          {/*        <Col>*/}
-          {/*          <div className="text-end">*/}
-          {/*            <Button color="success"*/}
-          {/*                    type="submit"*/}
-          {/*                    className="save-customer"*/}
-          {/*            >*/}
-          {/*              Save*/}
-          {/*            </Button>*/}
-          {/*          </div>*/}
-          {/*        </Col>*/}
-          {/*      </Row>*/}
-          {/*    </Form>*/}
-          {/*  </ModalBody>*/}
-          {/*</Modal>*/}
         </Container>
       </div>
       <ToastContainer />
