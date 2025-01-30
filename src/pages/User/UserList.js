@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import {
+  Button,
   Card,
   CardBody,
   Col,
@@ -22,7 +23,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb"
 import { ToastContainer } from "react-toastify"
 import DeleteModal from "../../components/Common/DeleteModal"
 import Spinners from "../../components/Common/Spinner"
-import TableContainer from "../../components/Common/TableContainer"
+import UserTableContainer from "../../components/Common/UserTableContainer"
 import * as PropTypes from "prop-types"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
@@ -61,13 +62,28 @@ const UserList = props => {
   const [isLoading, setLoading] = useState(false)
   const [modal, setModal] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
+  const [alertModal, setAlertModal] = useState(false)
+  const [alertModalTitle, setAlertModalTitle] = useState("")
+  const [alertModalMessage, setAlertModalMessage] = useState("")
+  const [roles, setRoles] = useState([])
+
   const navigate = useNavigate()
 
   const [user, setUser] = useState(null)
   const [customers, setCustomers] = useState([])
 
   const accessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3MzgxOTM5MjMsImV4cCI6MTczODE5OTkyM30.MAqjhLmtlktqa-FGSBajVWJBzEoFM04CeAbztKgaqJ8"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3MzgyMDc0NTgsImV4cCI6MTczODIxMzQ1OH0.7Ea9GstsLrCaNUb6whwpzeDGe01i1z1se_fR-Epi5Mw"
+
+  const url = roles => {
+    if (!roles || roles.length === 0) {
+      return `https://localhost/api/user`
+    } else {
+      return `https://localhost/api/user?roles=${roles.join(",")}`
+    }
+  }
+
+  console.log("url: ", url(roles))
 
   const getUserList = async () => {
     try {
@@ -76,10 +92,8 @@ const UserList = props => {
           Authorization: "Bearer " + `${accessToken}`,
         },
       }
-      const { data, status } = await axios.get(
-        "https://localhost/api/user",
-        config
-      )
+      const { data, status } = await axios.get(url(roles), config)
+      console.log(data, status)
       setCustomers(data.body.data)
       console.log(data.body.data)
     } catch (err) {
@@ -115,7 +129,8 @@ const UserList = props => {
         config
       )
       if (status === 200) {
-        alert("사용자가 삭제되었습니다.")
+        showAlertModal("삭제 완료", "사용자가 정상적으로 삭제되었습니다.")
+        getUserList()
       }
     } catch (err) {
       console.log(err.message)
@@ -210,7 +225,8 @@ const UserList = props => {
         values
       )
       if (status === 201) {
-        alert("사용자 등록이 완료되었습니다.")
+        showAlertModal("등록 완료", "사용자 등록이 완료되었습니다.")
+        getUserList()
       }
     } catch (err) {
       console.log(err.message)
@@ -224,7 +240,10 @@ const UserList = props => {
         values
       )
       if (status === 200) {
-        alert(`${values.email}님의 정보가 수정되었습니다.`)
+        showAlertModal(
+          "수정 완료",
+          `${values.email}님의 정보가 수정되었습니다.`
+        )
       }
     } catch (err) {
       console.log(err.message)
@@ -232,8 +251,9 @@ const UserList = props => {
   }
 
   useEffect(() => {
+    console.log("roles: ", roles)
     getUserList()
-  }, [customers])
+  }, [roles])
 
   const toggle = () => {
     setModal(!modal)
@@ -250,6 +270,16 @@ const UserList = props => {
       confirmPassword: "",
     })
     toggle()
+  }
+
+  const showAlertModal = (title, message) => {
+    setAlertModalTitle(title)
+    setAlertModalMessage(message)
+    setAlertModal(true)
+  }
+
+  const closeAlertModal = () => {
+    setAlertModal(false)
   }
 
   const handleDeleteCustomer = () => {
@@ -407,7 +437,7 @@ const UserList = props => {
               <Col xs="12">
                 <Card>
                   <CardBody>
-                    <TableContainer
+                    <UserTableContainer
                       columns={columns}
                       data={customers}
                       isGlobalFilter={true}
@@ -422,6 +452,8 @@ const UserList = props => {
                       theadClass="table-light"
                       pagination="pagination"
                       SearchPlaceholder="search..."
+                      roles={roles}
+                      setRoles={setRoles}
                     />
                   </CardBody>
                 </Card>
@@ -429,7 +461,7 @@ const UserList = props => {
             )}
             <Modal isOpen={modal} toggle={toggle}>
               <ModalHeader toggle={toggle} tag="h4">
-                {!!isEdit ? "Edit User" : "Add User"}
+                {!!isEdit ? "정보 수정" : "사용자 추가"}
               </ModalHeader>
               <ModalBody>
                 <Form
@@ -577,6 +609,19 @@ const UserList = props => {
         </Container>
       </div>
       <ToastContainer />
+      <Modal isOpen={alertModal} toggle={closeAlertModal} backdrop="static">
+        <ModalHeader toggle={closeAlertModal}>
+          {alertModalTitle || "알림"}
+        </ModalHeader>
+        <ModalBody>
+          <p>{alertModalMessage || "내용이 없습니다."}</p>
+          <div className="text-end">
+            <Button color="primary" onClick={closeAlertModal}>
+              확인
+            </Button>
+          </div>
+        </ModalBody>
+      </Modal>
     </React.Fragment>
   )
 }

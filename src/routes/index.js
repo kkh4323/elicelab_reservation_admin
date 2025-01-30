@@ -9,7 +9,7 @@ import ForgetPwd from "../pages/Authentication/ForgetPassword"
 
 // Dashboard
 import Dashboard from "../pages/Dashboard/index"
-import { AdminList, UserList } from "../pages/User"
+import { UserList } from "../pages/User"
 import { AddSpace, SpaceList } from "../pages/Space"
 import { ReservationList } from "../pages/Reservation"
 import { BlogGrid, BlogList } from "../pages/Blog"
@@ -32,11 +32,6 @@ const authProtectedRoutes = [
     path: "/users",
     exact: true,
     component: <UserList />,
-  },
-  {
-    path: "/admins",
-    exact: true,
-    component: <AdminList />,
   },
   {
     path: "/spaces",
