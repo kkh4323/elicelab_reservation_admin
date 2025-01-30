@@ -239,18 +239,16 @@ const UserList = props => {
     setModal(!modal)
   }
 
-  const handleUserClick = arg => {
-    const user = arg
-
-    setUser({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      profileImg: user.profileImg,
-      phone: user.phone,
-    })
+  const handleUserClick = user => {
     setIsEdit(true)
-
+    setUser(user)
+    validation.setValues({
+      username: user.username || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      password: "",
+      confirmPassword: "",
+    })
     toggle()
   }
 
@@ -263,7 +261,9 @@ const UserList = props => {
   }
 
   const handleUserClicks = () => {
-    setUser("")
+    setIsEdit(false)
+    setUser(null)
+    validation.resetForm()
     toggle()
   }
   const columns = useMemo(
@@ -352,14 +352,7 @@ const UserList = props => {
 
               <DropdownMenu className="dropdown-menu-end">
                 <DropdownItem
-                  onClick={e => {
-                    e.preventDefault()
-                    handleUserClicks()
-                    setIsEdit(true)
-                    console.log("isEdit: ", isEdit)
-                    console.log("customers: ", cellProps.row.original.id)
-                    return false
-                  }}
+                  onClick={() => handleUserClick(cellProps.row.original)}
                 >
                   <i
                     className="mdi mdi-pencil font-size-16 text-success me-1"
