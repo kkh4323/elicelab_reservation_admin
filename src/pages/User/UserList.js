@@ -76,7 +76,7 @@ const UserList = props => {
   const [customers, setCustomers] = useState([])
 
   const accessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3MzgyMDc0NTgsImV4cCI6MTczODIxMzQ1OH0.7Ea9GstsLrCaNUb6whwpzeDGe01i1z1se_fR-Epi5Mw"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3Mzg5MTU2MzYsImV4cCI6MTczODkyMTYzNn0.p5tsOtm16aEVq203ZjeagGohmQKmYoXTKtXcUSa3jgQ"
 
   const url = roles => {
     if (!roles || roles.length === 0) {

@@ -175,15 +175,13 @@ const UserTableContainer = ({
 
   return (
     <Fragment>
-      <Row className="mb-2">
+      <Row className="mb-2 align-items-center">
         {isCustomPageSize && (
           <Col sm={2}>
             <select
               className="form-select pageSize mb-2"
               value={table.getState().pagination.pageSize}
-              onChange={e => {
-                table.setPageSize(Number(e.target.value))
-              }}
+              onChange={e => table.setPageSize(Number(e.target.value))}
             >
               {[10, 20, 30, 40, 50].map(pageSize => (
                 <option key={pageSize} value={pageSize}>
@@ -194,41 +192,22 @@ const UserTableContainer = ({
           </Col>
         )}
 
-        {/*{isGlobalFilter && (*/}
-        {/*  <DebouncedInput*/}
-        {/*    value={globalFilter ?? ""}*/}
-        {/*    onChange={value => setGlobalFilter(String(value))}*/}
-        {/*    className="form-control search-box me-2 mb-2 d-inline-block"*/}
-        {/*    placeholder={SearchPlaceholder}*/}
-        {/*  />*/}
-        {/*)}*/}
+        <Col sm={4}>
+          <input
+            type="text"
+            className="form-control mb-2"
+            value={
+              searchType === "이름"
+                ? name
+                : searchType === "이메일"
+                ? email
+                : phone
+            }
+            onChange={handleSelectboxChangeSearchKeyword}
+            placeholder="검색어를 입력하세요"
+          />
+        </Col>
 
-        {/*{isJobListGlobalFilter && (*/}
-        {/*  <JobListGlobalFilter setGlobalFilter={setGlobalFilter} />*/}
-        {/*)}*/}
-        {/*<input*/}
-        {/*  type="text"*/}
-        {/*  value={name || email || phone}*/}
-        {/*  // onChange={e => {*/}
-        {/*  //   if (name !== "") setName(e.target.value)*/}
-        {/*  //   if (email !== "") setEmail(e.target.value)*/}
-        {/*  //   if (phone !== "") setPhone(e.target.value)*/}
-        {/*  // }}*/}
-        {/*  onChange={handleSelectboxChangeSearchKeyword}*/}
-        {/*  placeholder="검색어를 입력하세요"*/}
-        {/*/>*/}
-        <input
-          type="text"
-          value={
-            searchType === "이름"
-              ? name
-              : searchType === "이메일"
-              ? email
-              : phone
-          }
-          onChange={handleSelectboxChangeSearchKeyword}
-          placeholder="검색어를 입력하세요"
-        />
         <Col sm={2}>
           <select
             className="form-select mb-2"
@@ -242,46 +221,50 @@ const UserTableContainer = ({
             ))}
           </select>
         </Col>
+      </Row>
 
-        <div className="docs-toggles">
-          <ul className="list-group d-flex flex-row">
-            <li className="list-group-item">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  id="all"
-                  type="checkbox"
-                  name="all"
-                  checked={roles.length === 0}
-                  onClick={() => handleCheckboxChange("all")}
-                />
-                <label className="form-check-label" htmlFor="all">
-                  All
-                </label>
-              </div>
-            </li>
-            {roleData.map((role, index) => (
-              <li className="list-group-item" key={index}>
+      <Row className="mb-3 align-items-center">
+        <Col sm={8}>
+          <div className="docs-toggles">
+            <ul className="list-group d-flex flex-row">
+              <li className="list-group-item">
                 <div className="form-check">
                   <input
                     className="form-check-input"
-                    id={role.name}
+                    id="all"
                     type="checkbox"
-                    name={role.name}
-                    checked={roles.includes(role.name)}
-                    onClick={() => handleCheckboxChange(role.name)}
+                    name="all"
+                    checked={roles.length === 0}
+                    onClick={() => handleCheckboxChange("all")}
                   />
-                  <label className="form-check-label" htmlFor={role.name}>
-                    {role.name}
+                  <label className="form-check-label" htmlFor="all">
+                    All
                   </label>
                 </div>
               </li>
-            ))}
-          </ul>
-        </div>
+              {roleData.map((role, index) => (
+                <li className="list-group-item" key={index}>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      id={role.name}
+                      type="checkbox"
+                      name={role.name}
+                      checked={roles.includes(role.name)}
+                      onClick={() => handleCheckboxChange(role.name)}
+                    />
+                    <label className="form-check-label" htmlFor={role.name}>
+                      {role.name}
+                    </label>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Col>
 
         {isAddButton && (
-          <Col sm={6}>
+          <Col sm={4}>
             <div className="text-sm-end">
               <Button
                 type="button"
