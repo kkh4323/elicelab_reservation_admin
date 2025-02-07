@@ -60,8 +60,12 @@ const DebouncedInput = ({
       <Col sm={4}>
         <input
           {...props}
-          value={value}
-          onChange={e => setValue(e.target.value)}
+          // value={name || email || phone}
+          // onChange={e => {
+          //   if (name !== "") setName(e.target.value)
+          //   if (email !== "") setEmail(e.target.value)
+          //   if (phone !== "") setPhone(e.target.value)
+          // }}
         />
       </Col>
     </React.Fragment>
@@ -76,22 +80,26 @@ const UserTableContainer = ({
   divClassName,
   isBordered,
   isPagination,
-  isGlobalFilter,
   paginationWrapper,
-  SearchPlaceholder,
   pagination,
   buttonClass,
   buttonName,
   isAddButton,
   isCustomPageSize,
   handleUserClick,
-  isJobListGlobalFilter,
   roles = [],
   setRoles,
+  name,
+  setName,
+  email,
+  setEmail,
+  phone,
+  setPhone,
+  handleSelectboxChangeSearchKeyword,
 }) => {
   const [columnFilters, setColumnFilters] = useState([])
   const [globalFilter, setGlobalFilter] = useState("")
-  // const [roles, setRoles] = useState([])
+  const [searchType, setSearchType] = useState("이름")
 
   const handleCheckboxChange = roleName => {
     if (roleName === "all") {
@@ -104,6 +112,20 @@ const UserTableContainer = ({
           : [...prevRoles, roleName]
       )
       console.log("roles: ", roles)
+    }
+  }
+
+  const handleSelectboxChange = event => {
+    const selectedType = event.target.value
+    setSearchType(selectedType)
+
+    // 선택한 검색 기준에 따라 입력 필드 초기화
+    if (selectedType === "이름") {
+      setName("")
+    } else if (selectedType === "이메일") {
+      setEmail("")
+    } else if (selectedType === "전화번호") {
+      setPhone("")
     }
   }
 
@@ -172,18 +194,54 @@ const UserTableContainer = ({
           </Col>
         )}
 
-        {isGlobalFilter && (
-          <DebouncedInput
-            value={globalFilter ?? ""}
-            onChange={value => setGlobalFilter(String(value))}
-            className="form-control search-box me-2 mb-2 d-inline-block"
-            placeholder={SearchPlaceholder}
-          />
-        )}
+        {/*{isGlobalFilter && (*/}
+        {/*  <DebouncedInput*/}
+        {/*    value={globalFilter ?? ""}*/}
+        {/*    onChange={value => setGlobalFilter(String(value))}*/}
+        {/*    className="form-control search-box me-2 mb-2 d-inline-block"*/}
+        {/*    placeholder={SearchPlaceholder}*/}
+        {/*  />*/}
+        {/*)}*/}
 
-        {isJobListGlobalFilter && (
-          <JobListGlobalFilter setGlobalFilter={setGlobalFilter} />
-        )}
+        {/*{isJobListGlobalFilter && (*/}
+        {/*  <JobListGlobalFilter setGlobalFilter={setGlobalFilter} />*/}
+        {/*)}*/}
+        {/*<input*/}
+        {/*  type="text"*/}
+        {/*  value={name || email || phone}*/}
+        {/*  // onChange={e => {*/}
+        {/*  //   if (name !== "") setName(e.target.value)*/}
+        {/*  //   if (email !== "") setEmail(e.target.value)*/}
+        {/*  //   if (phone !== "") setPhone(e.target.value)*/}
+        {/*  // }}*/}
+        {/*  onChange={handleSelectboxChangeSearchKeyword}*/}
+        {/*  placeholder="검색어를 입력하세요"*/}
+        {/*/>*/}
+        <input
+          type="text"
+          value={
+            searchType === "이름"
+              ? name
+              : searchType === "이메일"
+              ? email
+              : phone
+          }
+          onChange={handleSelectboxChangeSearchKeyword}
+          placeholder="검색어를 입력하세요"
+        />
+        <Col sm={2}>
+          <select
+            className="form-select mb-2"
+            value={searchType}
+            onChange={e => setSearchType(e.target.value)}
+          >
+            {["이름", "이메일", "전화번호"].map(item => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </Col>
 
         <div className="docs-toggles">
           <ul className="list-group d-flex flex-row">

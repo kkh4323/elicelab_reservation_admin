@@ -66,6 +66,9 @@ const UserList = props => {
   const [alertModalTitle, setAlertModalTitle] = useState("")
   const [alertModalMessage, setAlertModalMessage] = useState("")
   const [roles, setRoles] = useState([])
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
 
   const navigate = useNavigate()
 
@@ -248,6 +251,12 @@ const UserList = props => {
     } catch (err) {
       console.log(err.message)
     }
+  }
+
+  const handleSelectboxChangeSearchKeyword = e => {
+    if (name !== "") setName(e.target.value)
+    if (email !== "") setEmail(e.target.value)
+    if (phone !== "") setPhone(e.target.value)
   }
 
   useEffect(() => {
@@ -454,6 +463,15 @@ const UserList = props => {
                       SearchPlaceholder="search..."
                       roles={roles}
                       setRoles={setRoles}
+                      name={name}
+                      setName={setName}
+                      email={email}
+                      setEmail={setEmail}
+                      phone={phone}
+                      setPhone={setPhone}
+                      handleSelectboxChangeSearchKeyword={
+                        handleSelectboxChangeSearchKeyword
+                      }
                     />
                   </CardBody>
                 </Card>
