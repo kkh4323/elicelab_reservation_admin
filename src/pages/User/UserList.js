@@ -69,24 +69,30 @@ const UserList = props => {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-
-  const navigate = useNavigate()
-
+  const [searchType, setSearchType] = useState("")
+  const [searchKeyword, setSearchKeyword] = useState("")
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [profileImage, setProfileImage] = useState(null)
   const [user, setUser] = useState(null)
   const [customers, setCustomers] = useState([])
 
   const accessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3Mzg5MTU2MzYsImV4cCI6MTczODkyMTYzNn0.p5tsOtm16aEVq203ZjeagGohmQKmYoXTKtXcUSa3jgQ"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZTk1OGFjNC01ZmM3LTQ0MGItOTRhYS0zZmI3MDg5MzkxYjgiLCJpYXQiOjE3MzkzNTU3MjYsImV4cCI6MTczOTM2MTcyNn0.aKGKmUPAQlGqvlzhu1jTNLRg1ZZVt32w0FFoEdn_FHs"
 
-  const url = roles => {
-    if (!roles || roles.length === 0) {
-      return `https://localhost/api/user`
-    } else {
-      return `https://localhost/api/user?roles=${roles.join(",")}`
+  const url = (roles = [], searchOption = "", searchKeyword = "") => {
+    const baseUrl = "https://localhost/api/user"
+    const params = new URLSearchParams()
+
+    if (roles.length > 0) {
+      params.append("roles", roles.join(","))
     }
-  }
 
-  console.log("url: ", url(roles))
+    if (searchOption && searchKeyword) {
+      params.append(searchOption, searchKeyword)
+    }
+
+    return params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl
+  }
 
   const getUserList = async () => {
     try {
@@ -95,26 +101,12 @@ const UserList = props => {
           Authorization: "Bearer " + `${accessToken}`,
         },
       }
-      const { data, status } = await axios.get(url(roles), config)
-      console.log(data, status)
-      setCustomers(data.body.data)
-      console.log(data.body.data)
-    } catch (err) {
-      console.log(err.message)
-    }
-  }
-
-  const getUserById = async () => {
-    try {
-      const config = {
-        headers: {
-          Authorization: "Bearer " + `${accessToken}`,
-        },
-      }
       const { data, status } = await axios.get(
-        `https://localhost/api/user/${userId}`,
+        url(roles, searchType, searchKeyword),
         config
       )
+      setCustomers(data.body.data)
+      setFilteredUsers(data.body.data)
     } catch (err) {
       console.log(err.message)
     }
@@ -141,7 +133,6 @@ const UserList = props => {
   }
 
   const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
 
     initialValues: {
@@ -197,8 +188,6 @@ const UserList = props => {
             etc,
           },
         }
-        const emailInput = { email }
-        console.log(userInput)
         registerUser(userInput)
         validation.resetForm()
       }
@@ -206,14 +195,30 @@ const UserList = props => {
     },
   })
 
-  const getUserData = async (id, values) => {
+  const updateUser = async (id, values) => {
+    const userInput = {
+      username: values.username,
+      phone: values.phone,
+    }
+
     try {
+      const config = {
+        headers: {
+          Authorization: "Bearer " + `${accessToken}`,
+        },
+      }
       const { data, status } = await axios.put(
         `https://localhost/api/user/${id}`,
-        values
+        userInput,
+        config
       )
       if (status === 200) {
-        alert(`${values.email}님의 정보가 수정되었습니다.`)
+        showAlertModal(
+          "수정 완료",
+          `${values.email}님의 정보가 수정되었습니다.`
+        )
+        getUserList()
+        setModal(!modal)
       }
     } catch (err) {
       console.log(err.message)
@@ -221,48 +226,46 @@ const UserList = props => {
   }
 
   const registerUser = async values => {
-    console.log("values: ", values)
     try {
+      setLoading(!isLoading)
       const { data, status } = await axios.post(
         "https://localhost/api/auth/signup",
         values
       )
       if (status === 201) {
+        setLoading(!isLoading)
         showAlertModal("등록 완료", "사용자 등록이 완료되었습니다.")
         getUserList()
       }
     } catch (err) {
+      setLoading(!isLoading)
       console.log(err.message)
     }
-  }
-
-  const updateUser = async values => {
-    try {
-      const { data, status } = await axios.put(
-        "https://localhost/api/user",
-        values
-      )
-      if (status === 200) {
-        showAlertModal(
-          "수정 완료",
-          `${values.email}님의 정보가 수정되었습니다.`
-        )
-      }
-    } catch (err) {
-      console.log(err.message)
-    }
-  }
-
-  const handleSelectboxChangeSearchKeyword = e => {
-    if (name !== "") setName(e.target.value)
-    if (email !== "") setEmail(e.target.value)
-    if (phone !== "") setPhone(e.target.value)
   }
 
   useEffect(() => {
-    console.log("roles: ", roles)
     getUserList()
   }, [roles])
+
+  // 🔹 검색어 입력 시 필터링
+  useEffect(() => {
+    if (!searchKeyword) {
+      setFilteredUsers(customers) // 검색어가 없을 경우 전체 데이터 표시
+      return
+    }
+
+    const filtered = customers.filter(user => {
+      const lowerKeyword = searchKeyword.toLowerCase()
+      if (searchType === "이름")
+        return user.username.toLowerCase().includes(lowerKeyword)
+      if (searchType === "이메일")
+        return user.email.toLowerCase().includes(lowerKeyword)
+      if (searchType === "전화번호") return user.phone.includes(searchKeyword)
+      return false
+    })
+
+    setFilteredUsers(filtered)
+  }, [searchKeyword, searchType, customers])
 
   const toggle = () => {
     setModal(!modal)
@@ -275,8 +278,7 @@ const UserList = props => {
       username: user.username || "",
       email: user.email || "",
       phone: user.phone || "",
-      password: "",
-      confirmPassword: "",
+      profileImg: user.profileImg || "",
     })
     toggle()
   }
@@ -291,11 +293,11 @@ const UserList = props => {
     setAlertModal(false)
   }
 
-  const handleDeleteCustomer = () => {
-    if (customer && customer.id) {
-      // dispatch(onDeleteCustomer(customer.id));
-      // setDeleteModal(false);
-      // setCustomer(null)
+  const handleImageUpload = event => {
+    const file = event.target.files[0]
+    if (file) {
+      const previewUrl = URL.createObjectURL(file)
+      setProfileImage({ file, preview: previewUrl }) // 🔹 이미지 미리보기 저장
     }
   }
 
@@ -317,13 +319,14 @@ const UserList = props => {
         enableSorting: true,
       },
       {
-        header: "유저명",
+        header: "이름",
         accessorKey: "username",
         enableColumnFilter: false,
         enableSorting: true,
         cell: cell => {
           const { profileImg, username } = cell.row.original
-          const defaultImg = "https://via.placeholder.com/40" // 기본 이미지 설정
+          const defaultImg =
+            "https://www.generationsforpeace.org/wp-content/uploads/2018/03/empty-300x240.jpg" // 기본 이미지 설정
 
           return (
             <div className="d-flex align-items-center">
@@ -431,11 +434,7 @@ const UserList = props => {
   )
   return (
     <React.Fragment>
-      <DeleteModal
-        show={deleteModal}
-        onDeleteClick={handleDeleteCustomer}
-        onCloseClick={() => setDeleteModal(false)}
-      />
+      {isLoading && <Spinners setLoading={setLoading} />}
       <div className="page-content">
         <Container fluid>
           <Breadcrumbs title="사용자 관리" breadcrumbItem="사용자 목록" />
@@ -469,9 +468,12 @@ const UserList = props => {
                       setEmail={setEmail}
                       phone={phone}
                       setPhone={setPhone}
-                      handleSelectboxChangeSearchKeyword={
-                        handleSelectboxChangeSearchKeyword
-                      }
+                      searchType={searchType}
+                      setSearchType={setSearchType}
+                      searchKeyword={searchKeyword}
+                      setSearchKeyword={setSearchKeyword}
+                      filteredUsers={filteredUsers} // 필터링된 사용자 목록 전달
+                      searchFunc={() => getUserList()}
                     />
                   </CardBody>
                 </Card>
@@ -485,13 +487,51 @@ const UserList = props => {
                 <Form
                   onSubmit={e => {
                     e.preventDefault()
-                    setIsEdit(false)
-                    validation.handleSubmit()
+                    {
+                      !!isEdit
+                        ? updateUser(user.id, validation.values)
+                        : validation.handleSubmit()
+                    }
                     return false
                   }}
                 >
                   <Row>
                     <Col xs={12}>
+                      {isEdit && (
+                        <div className="mt-4 mt-md-0 text-center">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id="profileImg"
+                            style={{ display: "none" }}
+                            onChange={handleImageUpload}
+                          />
+                          <img
+                            className="img-thumbnail rounded-circle avatar-xl"
+                            alt="200x200"
+                            src={
+                              profileImage?.preview ||
+                              user?.profileImg ||
+                              "https://via.placeholder.com/200"
+                            }
+                            onClick={() =>
+                              document
+                                .getElementById("profileImageInput")
+                                .click()
+                            } // 🔹 클릭 시 파일 업로드
+                            style={{
+                              cursor: "pointer",
+                              objectFit: "cover",
+                              width: "160px",
+                              height: "160px",
+                            }}
+                            onError={e => {
+                              e.target.onerror = null
+                              e.target.src = "https://via.placeholder.com/200"
+                            }}
+                          />
+                        </div>
+                      )}
                       <div className="mb-3">
                         <Label className="form-label">이름</Label>
                         <Input
@@ -537,54 +577,57 @@ const UserList = props => {
                           </FormFeedback>
                         ) : null}
                       </div>
-                      <div className="mb-3">
-                        <Label className="form-label">비밀번호</Label>
-                        <Input
-                          name="password"
-                          label="password"
-                          type="password"
-                          placeholder="비밀번호를 입력해주세요"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.password || ""}
-                          invalid={
-                            validation.touched.password &&
-                            validation.errors.password
-                              ? true
-                              : false
-                          }
-                        />
-                        {validation.touched.password &&
-                        validation.errors.password ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.password}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
-                      <div className="mb-3">
-                        <Label className="form-label">비밀번호 확인</Label>
-                        <Input
-                          name="confirmPassword"
-                          label="confirmPassword"
-                          type="password"
-                          placeholder="비밀번호를 입력해주세요"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.confirmPassword || ""}
-                          invalid={
-                            validation.touched.confirmPassword &&
-                            validation.errors.confirmPassword
-                              ? true
-                              : false
-                          }
-                        />
-                        {validation.touched.confirmPassword &&
-                        validation.errors.confirmPassword ? (
-                          <FormFeedback type="invalid">
-                            {validation.errors.confirmPassword}
-                          </FormFeedback>
-                        ) : null}
-                      </div>
+                      {!isEdit && (
+                        <>
+                          <div className="mb-3">
+                            <Label className="form-label">비밀번호</Label>
+                            <Input
+                              name="password"
+                              type="password"
+                              placeholder="비밀번호를 입력해주세요"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.password || ""}
+                              invalid={
+                                validation.touched.password &&
+                                validation.errors.password
+                                  ? true
+                                  : false
+                              }
+                            />
+                            {validation.touched.password &&
+                            validation.errors.password ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.password}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+
+                          <div className="mb-3">
+                            <Label className="form-label">비밀번호 확인</Label>
+                            <Input
+                              name="confirmPassword"
+                              type="password"
+                              placeholder="비밀번호를 입력해주세요"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.confirmPassword || ""}
+                              invalid={
+                                validation.touched.confirmPassword &&
+                                validation.errors.confirmPassword
+                                  ? true
+                                  : false
+                              }
+                            />
+                            {validation.touched.confirmPassword &&
+                            validation.errors.confirmPassword ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.confirmPassword}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                        </>
+                      )}
                       <div className="mb-3">
                         <Label className="form-label">전화번호</Label>
                         <Input
@@ -615,7 +658,7 @@ const UserList = props => {
                           type="submit"
                           className="btn btn-success save-user"
                         >
-                          추가하기
+                          {!!isEdit ? "수정하기" : "추가하기"}
                         </button>
                       </div>
                     </Col>

@@ -12,8 +12,7 @@ import {
 } from "@tanstack/react-table"
 
 import { rankItem } from "@tanstack/match-sorter-utils"
-import JobListGlobalFilter from "./GlobalSearchFilter"
-import { roleData } from "../../common/data"
+import { roleData, userSearchOptions } from "../../common/data"
 
 // Column Filter
 const Filter = ({ column }) => {
@@ -58,15 +57,7 @@ const DebouncedInput = ({
   return (
     <React.Fragment>
       <Col sm={4}>
-        <input
-          {...props}
-          // value={name || email || phone}
-          // onChange={e => {
-          //   if (name !== "") setName(e.target.value)
-          //   if (email !== "") setEmail(e.target.value)
-          //   if (phone !== "") setPhone(e.target.value)
-          // }}
-        />
+        <input {...props} />
       </Col>
     </React.Fragment>
   )
@@ -89,17 +80,14 @@ const UserTableContainer = ({
   handleUserClick,
   roles = [],
   setRoles,
-  name,
-  setName,
-  email,
-  setEmail,
-  phone,
-  setPhone,
-  handleSelectboxChangeSearchKeyword,
+  searchType,
+  setSearchType,
+  searchKeyword,
+  setSearchKeyword,
+  searchFunc,
 }) => {
   const [columnFilters, setColumnFilters] = useState([])
   const [globalFilter, setGlobalFilter] = useState("")
-  const [searchType, setSearchType] = useState("이름")
 
   const handleCheckboxChange = roleName => {
     if (roleName === "all") {
@@ -112,20 +100,6 @@ const UserTableContainer = ({
           : [...prevRoles, roleName]
       )
       console.log("roles: ", roles)
-    }
-  }
-
-  const handleSelectboxChange = event => {
-    const selectedType = event.target.value
-    setSearchType(selectedType)
-
-    // 선택한 검색 기준에 따라 입력 필드 초기화
-    if (selectedType === "이름") {
-      setName("")
-    } else if (selectedType === "이메일") {
-      setEmail("")
-    } else if (selectedType === "전화번호") {
-      setPhone("")
     }
   }
 
@@ -165,13 +139,13 @@ const UserTableContainer = ({
     setPageIndex,
     nextPage,
     previousPage,
-    // setPageSize,
     getState,
   } = table
 
-  // useEffect(() => {
-  //   Number(customPageSize) && setPageSize(Number(customPageSize));
-  // }, [customPageSize, setPageSize]);
+  useEffect(() => {
+    console.log("Search Type Changed:", searchType)
+    console.log("searchKeyword", searchKeyword)
+  }, [searchType, searchKeyword]) // 🔹 searchType이 변경될 때마다 실행
 
   return (
     <Fragment>
@@ -192,34 +166,38 @@ const UserTableContainer = ({
           </Col>
         )}
 
-        <Col sm={4}>
+        <Col sm={6}>
           <input
             type="text"
             className="form-control mb-2"
-            value={
-              searchType === "이름"
-                ? name
-                : searchType === "이메일"
-                ? email
-                : phone
-            }
-            onChange={handleSelectboxChangeSearchKeyword}
+            value={searchKeyword}
+            onChange={e => {
+              const insertedKeyword = e.target.value
+              setSearchKeyword(insertedKeyword)
+            }}
             placeholder="검색어를 입력하세요"
           />
         </Col>
-
         <Col sm={2}>
           <select
             className="form-select mb-2"
             value={searchType}
-            onChange={e => setSearchType(e.target.value)}
+            onChange={e => {
+              const selectedType = e.target.value
+              setSearchType(selectedType) // 🔹 상태 업데이트
+            }}
           >
-            {["이름", "이메일", "전화번호"].map(item => (
-              <option key={item} value={item}>
-                {item}
+            {userSearchOptions.map((option, index) => (
+              <option key={index} value={option.value}>
+                {option.name}
               </option>
             ))}
           </select>
+        </Col>
+        <Col sm={2}>
+          <Button className="mb-2" color="success" outline onClick={searchFunc}>
+            검색
+          </Button>
         </Col>
       </Row>
 
@@ -227,37 +205,34 @@ const UserTableContainer = ({
         <Col sm={8}>
           <div className="docs-toggles">
             <ul className="list-group d-flex flex-row">
-              <li className="list-group-item">
-                <div className="form-check">
+              <div className="form-check px-4">
+                <input
+                  className="form-check-input"
+                  id="all"
+                  type="checkbox"
+                  name="all"
+                  checked={roles.length === 0}
+                  onClick={() => handleCheckboxChange("all")}
+                />
+                <label className="form-check-label" htmlFor="all">
+                  All
+                </label>
+              </div>
+
+              {roleData.map((role, index) => (
+                <div className="form-check px-4" key={index}>
                   <input
                     className="form-check-input"
-                    id="all"
+                    id={role.name}
                     type="checkbox"
-                    name="all"
-                    checked={roles.length === 0}
-                    onClick={() => handleCheckboxChange("all")}
+                    name={role.name}
+                    checked={roles.includes(role.name)}
+                    onClick={() => handleCheckboxChange(role.name)}
                   />
-                  <label className="form-check-label" htmlFor="all">
-                    All
+                  <label className="form-check-label" htmlFor={role.name}>
+                    {role.name}
                   </label>
                 </div>
-              </li>
-              {roleData.map((role, index) => (
-                <li className="list-group-item" key={index}>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id={role.name}
-                      type="checkbox"
-                      name={role.name}
-                      checked={roles.includes(role.name)}
-                      onClick={() => handleCheckboxChange(role.name)}
-                    />
-                    <label className="form-check-label" htmlFor={role.name}>
-                      {role.name}
-                    </label>
-                  </div>
-                </li>
               ))}
             </ul>
           </div>
