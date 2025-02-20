@@ -432,6 +432,7 @@ const UserList = props => {
     ],
     []
   )
+  console.log(url(roles, searchType, searchKeyword))
   return (
     <React.Fragment>
       {isLoading && <Spinners setLoading={setLoading} />}
@@ -439,46 +440,43 @@ const UserList = props => {
         <Container fluid>
           <Breadcrumbs title="사용자 관리" breadcrumbItem="사용자 목록" />
           <Row>
-            {isLoading ? (
-              <Spinners setLoading={setLoading} />
-            ) : (
-              <Col xs="12">
-                <Card>
-                  <CardBody>
-                    <UserTableContainer
-                      columns={columns}
-                      data={customers}
-                      isGlobalFilter={true}
-                      isAddButton={true}
-                      isPagination={true}
-                      isCustomPageSize={true}
-                      handleUserClick={handleUserClicks}
-                      buttonClass="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2 addCustomers-modal"
-                      buttonName="사용자 추가"
-                      paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
-                      tableClass="align-middle table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                      theadClass="table-light"
-                      pagination="pagination"
-                      SearchPlaceholder="search..."
-                      roles={roles}
-                      setRoles={setRoles}
-                      name={name}
-                      setName={setName}
-                      email={email}
-                      setEmail={setEmail}
-                      phone={phone}
-                      setPhone={setPhone}
-                      searchType={searchType}
-                      setSearchType={setSearchType}
-                      searchKeyword={searchKeyword}
-                      setSearchKeyword={setSearchKeyword}
-                      filteredUsers={filteredUsers} // 필터링된 사용자 목록 전달
-                      searchFunc={() => getUserList()}
-                    />
-                  </CardBody>
-                </Card>
-              </Col>
-            )}
+            <Col xs="12">
+              <Card>
+                <CardBody>
+                  <UserTableContainer
+                    columns={columns}
+                    data={customers}
+                    isGlobalFilter={true}
+                    isAddButton={true}
+                    isPagination={true}
+                    isCustomPageSize={true}
+                    handleUserClick={handleUserClicks}
+                    buttonClass="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2 addCustomers-modal"
+                    buttonName="사용자 추가"
+                    paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
+                    tableClass="align-middle table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                    theadClass="table-light"
+                    pagination="pagination"
+                    SearchPlaceholder="search..."
+                    roles={roles}
+                    setRoles={setRoles}
+                    name={name}
+                    setName={setName}
+                    email={email}
+                    setEmail={setEmail}
+                    phone={phone}
+                    setPhone={setPhone}
+                    searchType={searchType}
+                    setSearchType={setSearchType}
+                    searchKeyword={searchKeyword}
+                    setSearchKeyword={setSearchKeyword}
+                    filteredUsers={filteredUsers} // 필터링된 사용자 목록 전달
+                    searchFunc={() => getUserList()}
+                  />
+                </CardBody>
+              </Card>
+            </Col>
+
             <Modal isOpen={modal} toggle={toggle}>
               <ModalHeader toggle={toggle} tag="h4">
                 {!!isEdit ? "정보 수정" : "사용자 추가"}

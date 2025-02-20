@@ -65,21 +65,28 @@ const SpaceList = () => {
   const [isLoading, setLoading] = useState(false)
   const [spaceList, setspaceList] = useState([])
   const [activeTab, setActiveTab] = useState("1")
-  // eslint-disable-next-line no-unused-vars
-  const filterLocation = [
-    { id: 1, name: "서울센터", link: "#" },
-    { id: 2, name: "부산센터", link: "#" },
-  ]
-  const filterSpace = [
-    { id: 1, name: "미팅룸", link: "#" },
-    { id: 2, name: "프로그래밍 존", link: "#" },
-  ]
+  const [location, setLocation] = useState([])
+  const [zone, setZone] = useState([])
 
-  const getSpaceInfos = async () => {
+  const url = (location = [], zone = []) => {
+    const baseUrl = "https://localhost/api/space"
+    const params = new URLSearchParams()
+
+    if (location.length > 0) {
+      params.append("location", location.join(","))
+    }
+
+    if (zone.length > 0) {
+      params.append("zone", zone.join(","))
+    }
+
+    return params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl
+  }
+
+  const getSpaceInfos = async (location, zone) => {
     try {
-      const { data, status } = await axios.get(
-        "https://localhost/api/space?order=ASC&page=1&take=10"
-      )
+      const { data, status } = await axios.get(url(location, zone))
+      console.log("url: ", url(location, zone))
       console.log("spaceDatas: ", data.body.data)
       if (status === 200) {
         setspaceList(data.body.data)
@@ -90,29 +97,13 @@ const SpaceList = () => {
   }
 
   useEffect(() => {
-    // dispatch(onGetProducts());
-    getSpaceInfos()
-  }, [])
-
-  useEffect(() => {
-    // if (!isEmpty(products)) setspaceList([]);
-  }, [])
+    getSpaceInfos(location, zone)
+  }, [location, zone])
 
   const toggleTab = tab => {
     if (activeTab !== tab) {
       setActiveTab(tab)
     }
-  }
-
-  const onSelectDiscount = e => {
-    const { value } = e.target
-
-    // if (value !== null) {
-    //   const filteredProducts = (products || [])?.filter((product) => product.offer.toString() === value.toString());
-    //   setspaceList(filteredProducts);
-    // } else {
-    //   setspaceList([]);
-    // }
   }
 
   //Product Filter with noUi slider
@@ -139,12 +130,11 @@ const SpaceList = () => {
   on change rating checkbox method
   */
   const onChangeRating = value => {
-    // if (value !== null) {
-    //   const filteredProducts = (products || [])?.filter((product) => product.rating === value);
-    //   setspaceList(filteredProducts);
-    // } else {
-    //   setspaceList(products);
-    // }
+    setLocation(prevLocation =>
+      prevLocation.includes(value)
+        ? prevLocation.filter(r => r !== value)
+        : [...prevLocation, value]
+    )
   }
 
   // pagination
@@ -184,7 +174,7 @@ const SpaceList = () => {
                             type="checkbox"
                             id="productratingCheck1"
                             onChange={e => {
-                              onChangeRating(4)
+                              onChangeRating("seoul")
                             }}
                           />
                           <Label check htmlFor="productratingCheck1">
@@ -196,7 +186,7 @@ const SpaceList = () => {
                             type="checkbox"
                             id="productratingCheck2"
                             onChange={e => {
-                              onChangeRating(3)
+                              onChangeRating("busan")
                             }}
                           />
                           <Label check htmlFor="productratingCheck2">
@@ -215,7 +205,7 @@ const SpaceList = () => {
                             type="checkbox"
                             id="productratingCheck1"
                             onChange={e => {
-                              onChangeRating(4)
+                              onChangeRating("meeting")
                             }}
                           />
                           <Label check htmlFor="productratingCheck1">
@@ -227,7 +217,7 @@ const SpaceList = () => {
                             type="checkbox"
                             id="productratingCheck2"
                             onChange={e => {
-                              onChangeRating(3)
+                              onChangeRating("programming")
                             }}
                           />
                           <Label check htmlFor="productratingCheck2">

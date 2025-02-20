@@ -39,16 +39,16 @@ const AddSpace = () => {
     initialValues: {
       name: "",
       description: "",
-      location: "",
-      zone: "",
+      location: [],
+      zone: [],
       maxPeople: 0,
       spaceImgs: [],
     },
     validationSchema: yup.object({
       name: yup.string().required("공간명은 필수값입니다."),
       description: yup.string().required("상세 설명은 필수값입니다."),
-      location: yup.string().required("센터 선택은 필수값입니다."),
-      zone: yup.string().required("공간 구분은 필수값입니다."),
+      location: yup.array().required("센터 선택은 필수값입니다."),
+      zone: yup.array().required("공간 구분은 필수값입니다."),
       maxPeople: yup.number().required("최대 인원은 필수값입니다."),
       spaceImgs: yup
         .array()
@@ -60,8 +60,14 @@ const AddSpace = () => {
       const formData = new FormData()
       formData.append("name", values.name)
       formData.append("description", values.description)
-      formData.append("location", values.location)
-      formData.append("zone", values.zone)
+      location.forEach(l => {
+        formData.append("location", l)
+      })
+      zone.forEach(z => {
+        formData.append("zone", z)
+      })
+      // formData.append("location", values.location)
+      // formData.append("zone", values.zone)
       formData.append("maxPeople", values.maxPeople)
       spaceImgs.forEach(file => {
         formData.append("spaceImgs", file)
@@ -77,11 +83,12 @@ const AddSpace = () => {
             },
           }
         )
+        console.log(response.data, response.status)
         if (response.status === 201) {
           navigate("/spaces")
         }
       } catch (err) {
-        console.log("공간 생성 실패: ", err)
+        console.log("공간 생성 실패: ", err.message)
       }
       // formData.append('spaceImgs', values.spaceImgs)
     },
