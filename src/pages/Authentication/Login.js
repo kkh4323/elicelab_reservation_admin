@@ -15,8 +15,8 @@ import {
 } from "reactstrap"
 
 //redux
-import { useSelector, useDispatch } from "react-redux"
-import { createSelector } from "reselect"
+// import { useSelector, useDispatch } from "react-redux"
+// import { createSelector } from "reselect"
 import { Link, useNavigate } from "react-router-dom"
 import withRouter from "components/Common/withRouter"
 
@@ -31,14 +31,18 @@ import { loginUser, socialLogin } from "../../store/actions"
 import profileImg from "../../assets/images/profile-img.png"
 import logoImg from "../../assets/images/elice-logo.svg"
 import axios from "axios"
+import { useLogin } from "../../hooks/useAuth"
+import { useGoogleLogin } from "../../hooks/useGoogleLogin"
 
 const Login = props => {
   //meta title
   document.title = "로그인 | 엘리스랩"
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const loginMutation = useLogin()
+  const googleLoginMutation = useGoogleLogin()
   const [errAlert, setErrAlert] = useState(false)
 
   // const validation = useFormik({
@@ -86,7 +90,9 @@ const Login = props => {
       password: Yup.string().required("Please Enter Your Password"),
     }),
     onSubmit: async values => {
-      dispatch(loginUser(values, props.router.navigate))
+      console.log("values: ", values)
+      loginMutation.mutate(values)
+      // dispatch(loginUser(values, props.router.navigate))
       // try {
       //   const { data, status } = await axios.post(
       //     "https://localhost/api/auth/login",
@@ -111,17 +117,17 @@ const Login = props => {
     },
   })
 
-  const LoginProperties = createSelector(
-    state => state.Login,
-    login => ({
-      error: login.error,
-    })
-  )
-
-  const { error } = useSelector(LoginProperties)
+  // const LoginProperties = createSelector(
+  //   state => state.Login,
+  //   login => ({
+  //     error: login.error,
+  //   })
+  // )
+  //
+  // const { error } = useSelector(LoginProperties)
 
   const signIn = type => {
-    dispatch(socialLogin(type, props.router.navigate))
+    // dispatch(socialLogin(type, props.router.navigate))
   }
 
   //for facebook and google authentication
@@ -176,7 +182,7 @@ const Login = props => {
                         return false
                       }}
                     >
-                      {error ? <Alert color="danger">{error}</Alert> : null}
+                      {/*{error ? <Alert color="danger">{error}</Alert> : null}*/}
 
                       <div className="mb-3">
                         <Label className="form-label">이메일 주소</Label>
@@ -289,10 +295,7 @@ const Login = props => {
                             <Link
                               to="#"
                               className="social-list-item bg-danger text-white border-danger"
-                              onClick={e => {
-                                e.preventDefault()
-                                socialResponse("google")
-                              }}
+                              onClick={() => googleLoginMutation.mutate()}
                             >
                               <i className="mdi mdi-google" />
                             </Link>

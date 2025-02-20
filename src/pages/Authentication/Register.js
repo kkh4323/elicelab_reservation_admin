@@ -10,6 +10,7 @@ import {
   Label,
   Form,
   FormFeedback,
+  Spinner,
 } from "reactstrap"
 
 // Formik Validation
@@ -20,8 +21,8 @@ import { useFormik } from "formik"
 import { registerUser, apiError } from "../../store/actions"
 
 //redux
-import { useSelector, useDispatch } from "react-redux"
-import { createSelector } from "reselect"
+// import { useSelector, useDispatch } from "react-redux"
+// import { createSelector } from "reselect"
 
 import { Link, useNavigate } from "react-router-dom"
 
@@ -29,15 +30,20 @@ import { Link, useNavigate } from "react-router-dom"
 import profileImg from "../../assets/images/profile-img.png"
 import logoImg from "../../assets/images/logo.svg"
 import axios from "axios"
+import { useSignUp } from "../../hooks/useAuth"
+import { useSendEmail, useVerifyEmail } from "../../hooks/useEmailVerification"
 
 const Register = props => {
   //meta title
   document.title = "회원가입 | 엘리스랩"
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const navigate = useNavigate()
   const emailRef = useRef()
 
+  const signupMutation = useSignUp()
+  const sendEmailMutation = useSendEmail()
+  const verifyEmailMutation = useVerifyEmail()
   const [submitBtnDisable, setSubmitBtnDisable] = useState(true)
   const [verifyCodeShow, setVerifyCodeShow] = useState(false)
   const [verifyCode, setVerifyCode] = useState("")
@@ -113,85 +119,105 @@ const Register = props => {
       }
       const emailInput = { email }
       console.log(userInput)
-      registerUser(userInput)
+      signupMutation.mutate(userInput)
+      // registerUser(userInput)
     },
   })
 
-  const registerUser = async values => {
-    console.log("values: ", values)
-    try {
-      const { data, status } = await axios.post(
-        "https://localhost/api/auth/signup",
-        values
-      )
-      if (status === 201) {
-        navigate("/login")
-      }
-    } catch (err) {
-      console.log(err.message)
-    }
-  }
+  // const registerUser = async values => {
+  //   console.log("values: ", values)
+  //   try {
+  //     const { data, status } = await axios.post(
+  //       "https://localhost/api/auth/signup",
+  //       values
+  //     )
+  //     if (status === 201) {
+  //       navigate("/login")
+  //     }
+  //   } catch (err) {
+  //     console.log(err.message)
+  //   }
+  // }
 
-  const sendEmail = async e => {
+  const sendEmail = e => {
     e.preventDefault()
-    const userInput = { email: validation.values.email }
-    try {
-      const url = "http://localhost/api/auth/email/send"
-      const result = await axios.post(url, userInput)
-      console.log("+++++++++++++++++", result)
-      if (result.status === 200) {
+    sendEmailMutation.mutate(validation.values.email, {
+      onSuccess: () => {
+        alert("please check your email")
         setVerifyCodeShow(true)
-      }
-    } catch (err) {
-      console.log(err)
-    }
+      },
+    })
+    // const userInput = { email: validation.values.email }
+    // try {
+    //   const url = "http://localhost/api/auth/email/send"
+    //   const result = await axios.post(url, userInput)
+    //   console.log("+++++++++++++++++", result)
+    //   if (result.status === 200) {
+    //     setVerifyCodeShow(true)
+    //   }
+    // } catch (err) {
+    //   console.log(err)
+    // }
   }
 
   const checkVerifyCode = async e => {
     e.preventDefault()
-
-    const userInput = {
-      email: validation.values.email,
-      code: verifyCode,
-    }
-    try {
-      const url = "http://localhost/api/auth/email/verify"
-      const result = await axios.post(url, userInput)
-      console.log(result)
-      if (result.status === 200) {
-        setVerifyCodeShow(false)
-        setVerifyCodeCheck(true)
-        setSubmitBtnDisable(false)
+    verifyEmailMutation.mutate(
+      {
+        email: validation.values.email,
+        code: verifyCode,
+      },
+      {
+        onSuccess: () => {
+          alert("verify success")
+          setVerifyCodeShow(false)
+          setVerifyCodeCheck(true)
+          setSubmitBtnDisable(false)
+        },
       }
-    } catch (err) {
-      console.log(err)
-    }
+    )
+    // const userInput = {
+    //   email: validation.values.email,
+    //   code: verifyCode,
+    // }
+    // try {
+    //   const url = "http://localhost/api/auth/email/verify"
+    //   const result = await axios.post(url, userInput)
+    //   console.log(result)
+    //   if (result.status === 200) {
+    //     setVerifyCodeShow(false)
+    //     setVerifyCodeCheck(true)
+    //     setSubmitBtnDisable(false)
+    //   }
+    // } catch (err) {
+    //   console.log(err)
+    // }
   }
 
-  const AccountProperties = createSelector(
-    state => state.Account,
-    account => ({
-      user: account.user,
-      registrationError: account.registrationError,
-      success: account.success,
-      // loading: account.loading,
-    })
-  )
+  // const AccountProperties = createSelector(
+  //   state => state.Account,
+  //   account => ({
+  //     user: account.user,
+  //     registrationError: account.registrationError,
+  //     success: account.success,
+  //     // loading: account.loading,
+  //   })
+  // )
 
-  const {
-    user,
-    registrationError,
-    success,
-    // loading
-  } = useSelector(AccountProperties)
+  // const {
+  //   user,
+  //   registrationError,
+  //   success,
+  //   // loading
+  // } = useSelector(AccountProperties)
 
   useEffect(() => {
-    dispatch(apiError(""))
+    // dispatch(apiError(""))
   }, [])
 
   useEffect(() => {
-    success && setTimeout(() => navigate("/login"), 2000)
-  }, [success])
+    // success && setTimeout(() => navigate("/login"), 2000)
+  }, [])
 
   return (
     <React.Fragment>
@@ -242,15 +268,15 @@ const Register = props => {
                         return false
                       }}
                     >
-                      {user && user ? (
-                        <Alert color="success">
-                          회원가입이 완료되었습니다.
-                        </Alert>
-                      ) : null}
+                      {/*{user && user ? (*/}
+                      {/*  <Alert color="success">*/}
+                      {/*    회원가입이 완료되었습니다.*/}
+                      {/*  </Alert>*/}
+                      {/*) : null}*/}
 
-                      {registrationError && registrationError ? (
-                        <Alert color="danger">{registrationError}</Alert>
-                      ) : null}
+                      {/*{registrationError && registrationError ? (*/}
+                      {/*  <Alert color="danger">{registrationError}</Alert>*/}
+                      {/*) : null}*/}
 
                       <div className="mb-3">
                         <Label className="form-label">이름</Label>
@@ -342,6 +368,13 @@ const Register = props => {
                               </FormFeedback>
                             ) : null}
                           </Col>
+                          {sendEmailMutation.isPending && (
+                            <Spinner animation="border" role="status">
+                              <span className="visually-hidden">
+                                Loading...
+                              </span>
+                            </Spinner>
+                          )}
                           <Col xs={3}>
                             <button
                               type="button"

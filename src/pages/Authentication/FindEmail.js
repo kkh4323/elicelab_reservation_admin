@@ -14,8 +14,8 @@ import {
 } from "reactstrap"
 
 //redux
-import { useSelector, useDispatch } from "react-redux"
-import { createSelector } from "reselect"
+// import { useSelector, useDispatch } from "react-redux"
+// import { createSelector } from "reselect"
 import {
   Link,
   useLocation,
@@ -40,7 +40,7 @@ const FindEmail = props => {
   //meta title
   document.title = "비밀번호 재설정 | 엘리스랩"
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [formShow, setFormShow] = useState(true)

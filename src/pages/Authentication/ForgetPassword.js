@@ -14,8 +14,8 @@ import {
 } from "reactstrap"
 
 //redux
-import { useSelector, useDispatch } from "react-redux"
-import { createSelector } from "reselect"
+// import { useSelector, useDispatch } from "react-redux"
+// import { createSelector } from "reselect"
 import { Link, useNavigate } from "react-router-dom"
 import withRouter from "components/Common/withRouter"
 
@@ -30,14 +30,16 @@ import { userForgetPassword } from "../../store/actions"
 import profile from "../../assets/images/profile-img.png"
 import logo from "../../assets/images/logo.svg"
 import axios from "axios"
+import { useSendEmailFindPassword } from "../../hooks/useFindPassword"
 
 const ForgetPasswordPage = props => {
   //meta title
   document.title = "Forget Password | Skote - React Admin & Dashboard Template"
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const sendEmailFindPasswordMutation = useSendEmailFindPassword()
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
@@ -49,34 +51,35 @@ const ForgetPasswordPage = props => {
       email: Yup.string().required("Please Enter Your Email"),
     }),
     onSubmit: async values => {
-      dispatch(userForgetPassword(values, props.history))
+      // dispatch(userForgetPassword(values, props.history))
       console.log(values)
-      try {
-        const { data, status } = await axios.post(
-          "http://localhost/api/auth/forgot/password",
-          values
-        )
-        if (status === 200) {
-          alert("please email check")
-          navigate("/login")
-        }
-      } catch (err) {
-        console.log(err.message)
-      }
+      sendEmailFindPasswordMutation.mutate(values.email)
+      // try {
+      //   const { data, status } = await axios.post(
+      //     "http://localhost/api/auth/forgot/password",
+      //     values
+      //   )
+      //   if (status === 200) {
+      //     alert("please email check")
+      //     navigate("/login")
+      //   }
+      // } catch (err) {
+      //   console.log(err.message)
+      // }
     },
   })
 
-  const ForgotPasswordProperties = createSelector(
-    state => state.ForgetPassword,
-    forgetPassword => ({
-      forgetError: forgetPassword.forgetError,
-      forgetSuccessMsg: forgetPassword.forgetSuccessMsg,
-    })
-  )
+  // const ForgotPasswordProperties = createSelector(
+  //   state => state.ForgetPassword,
+  //   forgetPassword => ({
+  //     forgetError: forgetPassword.forgetError,
+  //     forgetSuccessMsg: forgetPassword.forgetSuccessMsg,
+  //   })
+  // )
 
-  const { forgetError, forgetSuccessMsg } = useSelector(
-    ForgotPasswordProperties
-  )
+  // const { forgetError, forgetSuccessMsg } = useSelector(
+  //   ForgotPasswordProperties
+  // )
 
   return (
     <React.Fragment>
@@ -119,16 +122,16 @@ const ForgetPasswordPage = props => {
                     </Link>
                   </div>
                   <div className="p-2">
-                    {forgetError && forgetError ? (
-                      <Alert color="danger" style={{ marginTop: "13px" }}>
-                        {forgetError}
-                      </Alert>
-                    ) : null}
-                    {forgetSuccessMsg ? (
-                      <Alert color="success" style={{ marginTop: "13px" }}>
-                        {forgetSuccessMsg}
-                      </Alert>
-                    ) : null}
+                    {/*{forgetError && forgetError ? (*/}
+                    {/*  <Alert color="danger" style={{ marginTop: "13px" }}>*/}
+                    {/*    {forgetError}*/}
+                    {/*  </Alert>*/}
+                    {/*) : null}*/}
+                    {/*{forgetSuccessMsg ? (*/}
+                    {/*  <Alert color="success" style={{ marginTop: "13px" }}>*/}
+                    {/*    {forgetSuccessMsg}*/}
+                    {/*  </Alert>*/}
+                    {/*) : null}*/}
 
                     <Form
                       className="form-horizontal"
