@@ -1,23 +1,22 @@
-import { useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
+import { useMutation } from "@tanstack/react-query"
 
-export const useGoogleLogin = () => {
-  // const { login } = useAuth();
+export const useNaverLogin = () => {
   const navigate = useNavigate()
-  // const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
       return new Promise((resolve, reject) => {
-        const googleAuthUrl = "https://localhost/api/auth/google"
+        const googleAuthUrl = "https://localhost/api/auth/naver"
         const width = 500
         const height = 600
         const left = window.innerWidth / 2 - width / 2
         const top = window.innerHeight / 2 - height / 2
 
+        // ✅ "noopener" 제거하여 `window.opener` 유지
         const loginWindow = window.open(
           googleAuthUrl,
-          "Google Login",
+          "Naver Login",
           `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
         )
 
@@ -41,7 +40,7 @@ export const useGoogleLogin = () => {
 
             resolve(user)
           } else {
-            reject(new Error("Google login failed"))
+            reject(new Error("Naver login failed"))
           }
         }
 
@@ -52,13 +51,13 @@ export const useGoogleLogin = () => {
           if (loginWindow?.closed) {
             clearInterval(checkPopupClosed)
             window.removeEventListener("message", messageListener)
-            reject(new Error("Google login window closed"))
+            reject(new Error("Naver login window closed"))
           }
         }, 500)
       })
     },
     onError: error => {
-      console.error("Google login failed:", error)
+      console.error("Naver login failed:", error)
     },
   })
 }
