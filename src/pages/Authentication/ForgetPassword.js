@@ -11,6 +11,7 @@ import {
   Input,
   Label,
   Form,
+  Spinner,
 } from "reactstrap"
 
 //redux
@@ -169,7 +170,15 @@ const ForgetPasswordPage = props => {
                             className="btn btn-primary w-md "
                             type="submit"
                           >
-                            Reset
+                            {sendEmailFindPasswordMutation.isPending ? (
+                              <Spinner animation="border" role="status">
+                                <span className="visually-hidden">
+                                  Loading...
+                                </span>
+                              </Spinner>
+                            ) : (
+                              "Reset"
+                            )}
                           </button>
                         </Col>
                       </Row>
