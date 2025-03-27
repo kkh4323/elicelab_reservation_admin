@@ -50,8 +50,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build --max_old_space_size=8000 build",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "eslint ../../../Downloads",
+    "lint:fix": "eslint --fix ../../../Downloads",
     "format": "prettier --write \"**/*.{js,jsx,json,md,html,css,less,scss}\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
